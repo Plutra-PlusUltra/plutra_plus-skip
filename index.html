@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ぷらすきっぷ - わくわくレシピ</title>
+    <link rel="icon" type="image/svg+xml" href="images/pu.svg" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="js/tailwind-config.js"></script>
@@ -360,9 +361,9 @@
                 <p
                   class="font-bold text-base leading-relaxed text-white drop-shadow-[1px_1px_0px_#1e293b] mb-10"
                 >
-                  体験したワクワクレシピのコレクション。<br
+                  あなたが体験したわくわくレシピのコレクションです。<br
                     class="md:hidden"
-                  />スタンプを集めてみましょう！
+                  />スタンプを集めることができます。
                 </p>
               </div>
               <div class="max-w-md">
@@ -370,7 +371,7 @@
                   onclick="navigateTo('memory-list')"
                   class="w-full bg-white text-brand-dark border-[3px] border-brand-dark rounded-[24px] py-4 md:py-5 font-black text-base md:text-lg shadow-[6px_6px_0px_0px_#1e293b] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_#1e293b] active:translate-y-2 active:shadow-none transition-all flex items-center justify-center gap-2"
                 >
-                  わくわくメモリーをみる 💜
+                  わくわくメモリーをみる 🩷
                 </button>
               </div>
             </div>
@@ -439,6 +440,69 @@
           <div class="px-6 flex flex-col gap-5 font-black mt-2 flex-1">
             <button
               onclick="navigateTo('home')"
+              class="w-full bg-brand-main text-brand-dark border-[3px] border-brand-dark rounded-[20px] py-4 px-6 font-black text-base md:text-[17px] shadow-[6px_6px_0px_0px_#1e293b] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_#1e293b] active:translate-y-2 active:shadow-none transition-all flex items-center gap-4"
+            >
+              <div
+                class="w-8 h-8 bg-white border-[2px] border-brand-dark rounded-lg flex items-center justify-center shadow-[2px_2px_0px_0px_#1e293b] text-base transform -rotate-6 shrink-0 text-brand-dark"
+              >
+                🏠
+              </div>
+              <span>ホーム</span>
+            </button>
+
+            <button
+              onclick="goToLottery()"
+              class="w-full bg-white text-brand-dark border-[3px] border-brand-dark rounded-[20px] py-3.5 px-6 font-black text-base md:text-[17px] shadow-[6px_6px_0px_0px_#1e293b] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_#1e293b] active:translate-y-2 active:shadow-none transition-all flex items-center gap-4"
+            >
+              <div
+                class="w-8 h-8 bg-white text-brand-dark border-[2px] border-brand-dark rounded-lg flex items-center justify-center shadow-[2px_2px_0px_0px_#1e293b] text-base transform rotate-6 shrink-0"
+              >
+                ✨
+              </div>
+
+              <span class="text-left leading-tight">レシピがちゃ</span>
+            </button>
+
+            <button
+              onclick="navigateTo('recipe-list')"
+              class="w-full bg-brand-mint text-brand-dark border-[3px] border-brand-dark rounded-[20px] py-4 px-6 font-black text-base md:text-[17px] shadow-[6px_6px_0px_0px_#1e293b] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_#1e293b] active:translate-y-2 active:shadow-none transition-all flex items-center gap-4"
+            >
+              <div
+                class="w-8 h-8 bg-white text-brand-dark border-[2px] border-brand-dark rounded-lg flex items-center justify-center shadow-[2px_2px_0px_0px_#1e293b] text-base transform -rotate-3 shrink-0"
+              >
+                🔍
+              </div>
+              <span>レシピを探す</span>
+            </button>
+
+            <button
+              onclick="navigateTo('memory-list')"
+              class="w-full bg-brand-accent text-white border-[3px] border-brand-dark rounded-[20px] py-3.5 px-6 font-black text-base md:text-[17px] shadow-[6px_6px_0px_0px_#1e293b] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_#1e293b] active:translate-y-2 active:shadow-none transition-all flex items-center gap-4"
+            >
+              <div
+                class="w-8 h-8 bg-white text-brand-dark border-[2px] border-brand-dark rounded-lg flex items-center justify-center shadow-[2px_2px_0px_0px_#1e293b] text-base transform rotate-3 shrink-0"
+              >
+                🩷
+              </div>
+              <span class="text-left leading-tight">コレクション</span>
+            </button>
+
+            <button
+              onclick="navigateTo('wishlist')"
+              class="w-full bg-brand-main text-brand-dark border-[3px] border-brand-dark rounded-[20px] py-3.5 px-6 font-black text-base md:text-[17px] shadow-[6px_6px_0px_0px_#1e293b] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_#1e293b] active:translate-y-2 active:shadow-none transition-all flex items-center gap-4"
+            >
+              <div
+                class="w-8 h-8 bg-white text-brand-dark border-[2px] border-brand-dark rounded-lg flex items-center justify-center shadow-[2px_2px_0px_0px_#1e293b] text-base transform rotate-6 shrink-0"
+              >
+                ⭐
+              </div>
+              <span class="text-left leading-tight">やってみたい</span>
+            </button>
+          </div>
+          <!--
+          <div class="px-6 flex flex-col gap-5 font-black mt-2 flex-1">
+            <button
+              onclick="navigateTo('home')"
               class="w-full bg-white text-brand-dark border-[3px] border-brand-dark rounded-[20px] py-4 px-6 font-black text-base md:text-[17px] shadow-[6px_6px_0px_0px_#1e293b] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_#1e293b] active:translate-y-2 active:shadow-none transition-all flex items-center gap-4"
             >
               <div
@@ -449,10 +513,7 @@
               <span>ホーム</span>
             </button>
             <button
-              onclick="
-                navigateTo('home');
-                setTimeout(scrollToElement, 100, 'lottery-section');
-              "
+              onclick="goToLottery()"
               class="w-full bg-brand-accent text-white border-[3px] border-brand-dark rounded-[20px] py-3.5 px-6 font-black text-base md:text-[17px] shadow-[6px_6px_0px_0px_#1e293b] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_#1e293b] active:translate-y-2 active:shadow-none transition-all flex items-center gap-4"
             >
               <div
@@ -480,12 +541,12 @@
               <div
                 class="w-8 h-8 bg-white text-brand-dark border-[2px] border-brand-dark rounded-lg flex items-center justify-center shadow-[2px_2px_0px_0px_#1e293b] text-base transform rotate-3 shrink-0"
               >
-                💜
+                💛
               </div>
               <span class="text-left leading-tight">コレクション</span>
             </button>
           </div>
-        </div>
+        --></div>
       </div>
     </div>
     <script src="js/main.js"></script>

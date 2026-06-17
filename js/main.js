@@ -4,17 +4,21 @@ const recipesData = [
     t: "看板をギョウシ",
     d: "帰り道の看板の文章を全文読んで心の中でツッコミする",
     i: "🪧",
-    s: "#帰り道",
-    m: "#ギョウシ",
+    s: ["#帰り道", "#その他", "#移動中"],
+    m: ["#ギョウシ", "#ギャグ・シュール"],
     c: "#FFE600",
+    s1: "帰り道にある、一番文字がびっしり書かれている看板を見つけます。",
+    s2: "立ち止まらずに歩きながら、脳内でキレキレのツッコミを入れます。これぞ日常のサボりです。",
   },
   {
-    t: "小石 of 経歴捏造",
-    d: "道端の小石がハワイから来たエリートだと妄想する",
+    t: "小石の経歴捏造",
+    d: "道端の小石がハワイ生まれかもしれないと想像する",
     i: "🪨",
-    s: "#帰り道",
+    s: ["#帰り道", "#移動中"],
     m: "#想像・妄想",
     c: "#FF578A",
+    s1: "道端に転がっている小石に目をつけます。なければ、コンクリートの材料となった砂でも問題ありません。",
+    s2: "「キラウェア火山生まれ。風に吹かれ誰かに蹴られここまで来たのだ」などとバックボーンを捏造します。もしかしたら、本当かもしれません。",
   },
   {
     t: "戦闘力スカウター",
@@ -23,6 +27,8 @@ const recipesData = [
     s: "#帰り道",
     m: "#想像・妄想",
     c: "#FF578A",
+    s1: "前から歩いてくる人をターゲットに定めます。",
+    s2: "脳内にスカウターを装着し、「優しさ戦闘力…530000か…！」と勝手に計測してリスペクトします。",
   },
   {
     t: "白線タイムアタック",
@@ -49,12 +55,14 @@ const recipesData = [
     c: "#FFE600",
   },
   {
-    t: "電柱とハイタッチ",
-    d: "すれ違う電柱に心の中で「お疲れ！」とエアハイタッチ",
-    i: "🗼",
-    s: "#帰り道",
-    m: "#ギャグ・シュール",
+    t: "マイ吊り革企画会議",
+    d: "どんな形の吊り革がほしいか考える",
+    i: "🚞",
+    s: ["#帰り道", "#移動中", "#電車の中"],
+    m: "#想像・妄想",
     c: "#00E5B5",
+    s1: "吊り革を眺めます。なければ、吊り革をググります。",
+    s2: "自分がほしい吊り革を考えます。どこでもひっかけられるフック付き？星型？手がひんやりして夏でも快適？珪藻土でできていてハンカチがわり、手汗も吸収？",
   },
   {
     t: "影踏みマスター",
@@ -65,12 +73,15 @@ const recipesData = [
     c: "#FF578A",
   },
   {
-    t: "街灯スポットライト",
-    d: "街灯の下を通る一瞬だけ、自分が主役の顔をする",
-    i: "💡",
-    s: "#帰り道",
-    m: "#ギャグ・シュール",
+    t: "星ネーミングライツ",
+    d: "星を手に入れたら、なんて名前をつける？",
+    i: "🌟",
+    s: ["#帰り道", "#布団の中"],
+    m: "#想像・妄想",
     c: "#FFE600",
+    s1: "頭の中に夜空を描きます。なければ、汚れた画面を見ます。",
+    s2: "その中の一つが、自分の星であると強く信じます。",
+    s3: "名前をつけます。年齢や生態系を考えてみてもすてきですね。",
   },
   {
     t: "帰り道RTA",
@@ -87,14 +98,6 @@ const recipesData = [
     s: "#お布団の中",
     m: "#癒やし",
     c: "#00E5B5",
-  },
-  {
-    t: "星に命名",
-    d: "窓から見える星に「ウルトラマンボウ座」と名付ける",
-    i: "🌟",
-    s: "#お布団の中",
-    m: "#想像・妄想",
-    c: "#FF578A",
   },
   {
     t: "天井の木目動物",
@@ -402,55 +405,78 @@ const recipesData = [
   },
 ];
 
-const dummyRecipes = recipesData.map((r, i) => ({
-  id: i + 1,
-  title: r.t,
-  desc: r.d,
-  icon: r.i,
-  tags: [r.s, r.m],
-  situations: [r.s],
-  moods: [r.m],
-  color: r.c,
-}));
+// --- データの多重化・自動補完処理 ---
+const dummyRecipes = recipesData.map((r, i) => {
+  const sits = Array.isArray(r.s) ? r.s : [r.s];
+  const mods = Array.isArray(r.m) ? r.m : [r.m];
+
+  return {
+    id: i + 1,
+    title: r.t,
+    desc: r.d,
+    icon: r.i,
+    tags: [...sits, ...mods],
+    situations: sits,
+    moods: mods,
+    color: r.c,
+    step1: r.s1 || r.d + "の準備をします。",
+    step2:
+      r.s2 ||
+      "全力で、誰にもバレないように心の中で実践します。これぞ日常のサボりです。",
+    step3:
+      r.s3 || "最後に、心の中で小さくガッツポーズをして達成感を噛み締めます。",
+  };
+});
 
 // --- 状態管理 ---
 let isMenuOpen = false;
 let isSpinning = false;
-let selectedSituation = null;
-let selectedMood = null;
+let selectedSituations = []; // 複数選択（配列）に完全対応！
+let selectedMoods = []; // 複数選択（配列）に完全対応！
 let activeFilters = [];
 let clearedRecipes = JSON.parse(localStorage.getItem("clearedRecipes") || "[]");
+let wishlistRecipes = JSON.parse(
+  localStorage.getItem("wishlistRecipes") || "[]",
+);
+let gachaCount = 0;
 
 // --- 初期化 ---
 document.addEventListener("DOMContentLoaded", () => {
-  // ホーム画面の判定と初期化
+  const scrollTarget = localStorage.getItem("scrollToTarget");
+
   if (document.getElementById("gacha-machine")) {
     initGachaIcons();
     initSearchTags();
     window.addEventListener("scroll", checkScrollForHeader);
+
+    // 安全なlocalStorageスクロール制御
+    if (scrollTarget === "lottery") {
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+      localStorage.removeItem("scrollToTarget");
+      const forceScroll = () => {
+        if (document.getElementById("lottery-section"))
+          scrollToElement("lottery-section");
+      };
+      setTimeout(forceScroll, 100);
+      window.addEventListener("load", () => {
+        setTimeout(forceScroll, 100);
+      });
+    }
   }
-  // レシピ一覧画面の判定と初期化
+
   if (document.getElementById("recipe-list-grid")) {
     const params = new URLSearchParams(window.location.search);
     const tag = params.get("tag");
     if (tag) activeFilters.push(tag);
     renderRecipeList();
   }
-  // レシピ詳細画面の判定と初期化
-  if (document.getElementById("detail-title")) {
-    updateRecipeDetailView();
-  }
-  // DONE画面の判定と初期化
-  if (document.getElementById("done-title")) {
-    updateDoneView();
-  }
-  // メモリー一覧画面の判定と初期化
-  if (document.getElementById("memory-list-grid")) {
-    renderMemoryList();
-  }
+  if (document.getElementById("detail-title")) updateRecipeDetailView();
+  if (document.getElementById("done-title")) updateDoneView();
+  if (document.getElementById("memory-list-grid")) renderMemoryList();
+  if (document.getElementById("wishlist-grid")) renderWishlist();
 });
 
-// --- ナビゲーション（URL遷移に変更） ---
+// --- ナビゲーション ---
 function navigateTo(view, recipeId = null) {
   let url = "";
   if (view === "home") url = "index.html";
@@ -458,6 +484,7 @@ function navigateTo(view, recipeId = null) {
   else if (view === "recipe-detail") url = "recipe-detail.html";
   else if (view === "done") url = "done.html";
   else if (view === "memory-list") url = "memory-list.html";
+  else if (view === "wishlist") url = "wishlist.html";
 
   if (recipeId) url += "?id=" + recipeId;
   window.location.href = url;
@@ -467,17 +494,34 @@ function navigateToWithFilter(tag) {
   window.location.href = "recipe-list.html?tag=" + encodeURIComponent(tag);
 }
 
+function goToLottery() {
+  closeMenu();
+  if (document.getElementById("lottery-section")) {
+    setTimeout(() => {
+      scrollToElement("lottery-section");
+    }, 300);
+  } else {
+    localStorage.setItem("scrollToTarget", "lottery");
+    window.location.href = "index.html";
+  }
+}
+
 function scrollToElement(id) {
   const el = document.getElementById(id);
   if (el) {
-    const headerOffset = 80;
+    const header = document.getElementById("global-header");
+    const headerOffset = header ? header.offsetHeight : 0;
+    let extraOffset = id === "lottery-section" ? 80 : 0;
     const offsetPosition =
-      el.getBoundingClientRect().top + window.scrollY - headerOffset + 48;
+      el.getBoundingClientRect().top +
+      window.scrollY -
+      headerOffset +
+      extraOffset;
     window.scrollTo({ top: offsetPosition, behavior: "smooth" });
   }
 }
 
-// --- ヘッダー・メニュー制御 ---
+// --- ヘッダー・メニュー色自動切り替え ---
 function checkScrollForHeader() {
   const headerOffset = 120;
   const scrollY = window.scrollY + headerOffset;
@@ -529,6 +573,7 @@ function applyHeaderColor(headerColor, btnColor) {
   }
 }
 
+// --- メニュー開閉 ---
 function toggleMenu() {
   isMenuOpen = !isMenuOpen;
   const overlay = document.getElementById("side-menu-overlay");
@@ -595,7 +640,7 @@ function closeMenu() {
   }
 }
 
-// --- ホーム画面用機能（ガチャ・検索） ---
+// --- ガチャ機能 ---
 function initGachaIcons() {
   const container = document.getElementById("gacha-icons");
   const icons = ["🪧", "🛌", "🍳", "☕", "🚿"];
@@ -609,6 +654,8 @@ function initGachaIcons() {
 function playGacha() {
   if (isSpinning) return;
   isSpinning = true;
+  gachaCount++;
+
   const btn = document.getElementById("gacha-btn");
   btn.innerHTML = "まわし中... 🌀";
   btn.classList.add("bg-slate-400", "scale-95");
@@ -619,24 +666,47 @@ function playGacha() {
   document.getElementById("gacha-result").classList.add("hidden");
 
   setTimeout(() => {
-    const result =
-      dummyRecipes[Math.floor(Math.random() * dummyRecipes.length)];
-    document.getElementById("gacha-res-title").textContent = result.title;
-    document.getElementById("gacha-res-desc").textContent = result.desc;
-    document.getElementById("gacha-res-icon").innerHTML = result.icon;
+    // 10回ごとのSSRシークレット演出
+    if (gachaCount % 10 === 0) {
+      document.getElementById("gacha-res-title").textContent =
+        "【SSR】ガチャ回しすぎの達人🏆";
+      document.getElementById("gacha-res-desc").textContent =
+        "「もしかして、全部のレシピを出そうとしてる…？」10回も回してくれたあなたに、特大の拍力を送ります！一旦スマホを置いて、お茶でも飲みませんか？🍵";
+      document.getElementById("gacha-res-icon").innerHTML = "🎰";
+      document.getElementById("gacha-res-tags").innerHTML =
+        '<span class="text-xs md:text-sm px-3 py-1.5 bg-brand-accent border-[3px] border-brand-dark rounded-full font-black shadow-[2px_2px_0px_0px_#1e293b] text-white">#シークレット</span>';
+      document.getElementById("gacha-detail-btn").classList.add("hidden");
 
-    const tagsHtml = result.tags
-      .map(
-        (t) =>
-          `<span onclick="navigateToWithFilter('${t}')" class="text-xs md:text-sm px-3 py-1.5 bg-brand-main border-[3px] border-brand-dark rounded-full font-black shadow-[2px_2px_0px_0px_#1e293b] text-brand-dark cursor-pointer hover:bg-white active:scale-95 transition-all inline-block">${t}</span>`,
-      )
-      .join("");
-    document.getElementById("gacha-res-tags").innerHTML = tagsHtml;
+      const doneBtn = document.getElementById("gacha-done-btn");
+      doneBtn.innerHTML = "✨ 感謝して受け取る ✨";
+      doneBtn.onclick = () => {
+        triggerConfetti();
+        setTimeout(triggerConfetti, 300);
+        setTimeout(triggerConfetti, 600);
+      };
+    } else {
+      const result =
+        dummyRecipes[Math.floor(Math.random() * dummyRecipes.length)];
+      document.getElementById("gacha-res-title").textContent = r = result.title;
+      document.getElementById("gacha-res-desc").textContent = result.desc;
+      document.getElementById("gacha-res-icon").innerHTML = result.icon;
 
-    document.getElementById("gacha-detail-btn").onclick = () =>
-      navigateTo("recipe-detail", result.id);
-    document.getElementById("gacha-done-btn").onclick = () =>
-      actionDone(result.id);
+      const tagsHtml = result.tags
+        .map(
+          (t) =>
+            `<span onclick="navigateToWithFilter('${t}')" class="text-xs md:text-sm px-3 py-1.5 bg-brand-main border-[3px] border-brand-dark rounded-full font-black shadow-[2px_2px_0px_0px_#1e293b] text-brand-dark cursor-pointer hover:bg-white active:scale-95 transition-all inline-block">${t}</span>`,
+        )
+        .join("");
+      document.getElementById("gacha-res-tags").innerHTML = tagsHtml;
+
+      document.getElementById("gacha-detail-btn").classList.remove("hidden");
+      document.getElementById("gacha-detail-btn").onclick = () =>
+        navigateTo("recipe-detail", result.id);
+
+      const doneBtn = document.getElementById("gacha-done-btn");
+      doneBtn.innerHTML = "🎉 やってみた！";
+      doneBtn.onclick = () => actionDone(result.id);
+    }
 
     document.getElementById("gacha-result").classList.remove("hidden");
     document.getElementById("gacha-result").classList.add("animate-pop-in");
@@ -649,14 +719,18 @@ function playGacha() {
   }, 400);
 }
 
+// --- 複数選択タグ検索機能 ---
 function initSearchTags() {
   const sitTags = [
     "#帰り道",
-    "#お布団の中",
+    "#布団の中",
     "#朝",
     "#休憩時間",
     "#お風呂",
     "#食事中",
+    "#移動中",
+    "#電車の中",
+    "#その他",
   ];
   const moodTags = [
     "#癒やし",
@@ -666,10 +740,10 @@ function initSearchTags() {
     "#ギャグ・シュール",
   ];
 
-  const renderTags = (tags, stateVar, containerId, setFuncStr) => {
+  const renderTags = (tags, activeArray, containerId, setFuncStr) => {
     const html = tags
       .map((tag) => {
-        const isActive = stateVar === tag;
+        const isActive = activeArray.includes(tag);
         const cls = isActive
           ? "bg-brand-dark text-white"
           : "bg-white text-brand-dark";
@@ -680,23 +754,36 @@ function initSearchTags() {
   };
 
   window.setSit = (tag) => {
-    selectedSituation = selectedSituation === tag ? null : tag;
-    initSearchTags();
-  };
-  window.setMood = (tag) => {
-    selectedMood = selectedMood === tag ? null : tag;
+    if (selectedSituations.includes(tag)) {
+      selectedSituations = selectedSituations.filter((t) => t !== tag);
+    } else {
+      selectedSituations.push(tag);
+    }
     initSearchTags();
   };
 
-  renderTags(sitTags, selectedSituation, "search-situation-tags", "setSit");
-  renderTags(moodTags, selectedMood, "search-mood-tags", "setMood");
+  window.setMood = (tag) => {
+    if (selectedMoods.includes(tag)) {
+      selectedMoods = selectedMoods.filter((t) => t !== tag);
+    } else {
+      selectedMoods.push(tag);
+    }
+    initSearchTags();
+  };
+
+  renderTags(sitTags, selectedSituations, "search-situation-tags", "setSit");
+  renderTags(moodTags, selectedMoods, "search-mood-tags", "setMood");
 }
 
 function executeSearch() {
   let matched = dummyRecipes.filter((r) => {
+    // ▼ 複数選択対応のANDロジック（選んだタグをすべて満たしているかチェック）
     const sitMatch =
-      !selectedSituation || r.situations.includes(selectedSituation);
-    const moodMatch = !selectedMood || r.moods.includes(selectedMood);
+      selectedSituations.length === 0 ||
+      selectedSituations.every((sit) => r.situations.includes(sit));
+    const moodMatch =
+      selectedMoods.length === 0 ||
+      selectedMoods.every((mood) => r.moods.includes(mood));
     return sitMatch && moodMatch;
   });
 
@@ -735,13 +822,13 @@ function executeSearch() {
 }
 
 function resetSearch() {
-  selectedSituation = null;
-  selectedMood = null;
+  selectedSituations = [];
+  selectedMoods = [];
   initSearchTags();
   document.getElementById("search-result-container").innerHTML = "";
 }
 
-// --- レシピ一覧画面用機能 ---
+// --- レシピ一覧画面機能 ---
 function addFilter(tag, event) {
   if (event) event.stopPropagation();
   if (!activeFilters.includes(tag)) activeFilters.push(tag);
@@ -775,7 +862,7 @@ function renderRecipeList() {
       .join("");
     titleContainer.innerHTML = `<h2 class="font-black text-2xl md:text-3xl text-white drop-shadow-[2px_2px_0px_#1e293b] flex flex-wrap items-center gap-y-2">レシピ一覧 ${filterBadges}</h2>`;
   } else {
-    titleContainer.innerHTML = `<h2 class="font-black text-2xl md:text-3xl text-white drop-shadow-[2px_2px_0px_#1e293b]" id="recipe-list-title">レシピ一覧 (${dummyRecipes.length}件)</h2>`;
+    titleContainer.innerHTML = `<h2 class="font-black text-2xl md:text-3xl text-white drop-shadow-[2px_2px_0px_0px_#1e293b]" id="recipe-list-title">レシピ一覧 (${dummyRecipes.length}件)</h2>`;
   }
 
   const grid = document.getElementById("recipe-list-grid");
@@ -820,7 +907,7 @@ function renderRecipeList() {
   grid.innerHTML = html;
 }
 
-// --- 詳細・DONE画面・メモリー画面用機能 ---
+// --- 詳細画面・DONE画面・コレクション画面の制御 ---
 function updateRecipeDetailView() {
   const params = new URLSearchParams(window.location.search);
   const id = parseInt(params.get("id"));
@@ -831,8 +918,13 @@ function updateRecipeDetailView() {
     `w-24 h-24 md:w-32 md:h-32 bg-[${r.color}] rounded-3xl border-[3px] border-brand-dark flex items-center justify-center shadow-[4px_4px_0px_0px_#1e293b] shrink-0 mb-8 transform -rotate-3 text-brand-dark animate-fade-up`;
   document.getElementById("detail-icon").textContent = r.icon;
   document.getElementById("detail-title").textContent = r.title;
-  document.getElementById("detail-step1").textContent =
-    r.desc + "の準備をします。";
+
+  // ステップ1, 2, 3の流し込み
+  document.getElementById("detail-step1").textContent = r.step1;
+  document.getElementById("detail-step2").textContent = r.step2;
+
+  const step3El = document.getElementById("detail-step3");
+  if (step3El) step3El.textContent = r.step3;
 
   const tagsHtml = r.tags
     .map(
@@ -844,6 +936,21 @@ function updateRecipeDetailView() {
 
   document.getElementById("detail-share-btn").onclick = () => actionShare(r);
   document.getElementById("detail-done-btn").onclick = () => actionDone(r.id);
+
+  // やっってみたリストボタンの連動
+  const wishBtn = document.getElementById("detail-wish-btn");
+  if (wishBtn) {
+    if (wishlistRecipes.includes(r.id)) {
+      wishBtn.innerHTML = "🌟 リスト追加済";
+      wishBtn.classList.remove("bg-white");
+      wishBtn.classList.add("bg-brand-main");
+    } else {
+      wishBtn.innerHTML = "⭐ やってみたい";
+      wishBtn.classList.remove("bg-brand-main");
+      wishBtn.classList.add("bg-white");
+    }
+    wishBtn.onclick = () => actionWishlist(r.id);
+  }
 }
 
 function updateDoneView() {
@@ -888,7 +995,53 @@ function renderMemoryList() {
   }
 }
 
-// --- アクション ---
+// --- やっってみたリスト機能 ---
+function actionWishlist(recipeId) {
+  if (wishlistRecipes.includes(recipeId)) {
+    wishlistRecipes = wishlistRecipes.filter((id) => id !== recipeId);
+  } else {
+    wishlistRecipes.push(recipeId);
+  }
+  localStorage.setItem("wishlistRecipes", JSON.stringify(wishlistRecipes));
+  updateRecipeDetailView();
+}
+
+function renderWishlist() {
+  const grid = document.getElementById("wishlist-grid");
+  const empty = document.getElementById("wishlist-empty");
+  if (!grid) return;
+
+  const myWishes = dummyRecipes.filter((r) => wishlistRecipes.includes(r.id));
+
+  if (myWishes.length > 0) {
+    grid.classList.remove("hidden");
+    empty.classList.add("hidden");
+    let html = "";
+    myWishes.forEach((r, idx) => {
+      const rotation = idx % 2 === 0 ? "rotate-2" : "-rotate-2";
+      const isCleared = clearedRecipes.includes(r.id);
+      const badgeHtml = isCleared
+        ? `<div class="absolute -top-2 -right-2 bg-brand-accent text-white border-[2px] border-brand-dark w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shadow-[2px_2px_0px_0px_#1e293b] transform rotate-12 z-20">💮</div>`
+        : "";
+
+      html += `
+        <div onclick="navigateTo('recipe-detail', ${r.id})" class="bg-white border-[3px] border-brand-dark rounded-[24px] p-4 shadow-[6px_6px_0px_0px_#1e293b] cursor-pointer hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_#1e293b] active:translate-y-2 active:shadow-none transition-all ${rotation} animate-fade-up group" style="animation-delay: ${(idx % 10) * 50}ms">
+          <div class="aspect-square bg-slate-100 border-[3px] border-brand-dark rounded-[16px] mb-3 flex items-center justify-center overflow-hidden relative">
+            <div class="absolute inset-0 bg-[${r.color}] opacity-20"></div>
+            <div class="relative z-10 text-4xl md:text-5xl text-brand-dark transform transition-transform group-hover:scale-110">${r.icon}</div>
+            ${badgeHtml}
+          </div>
+          <p class="font-black text-xs md:text-sm line-clamp-2 leading-tight text-brand-dark">${r.title}</p>
+        </div>`;
+    });
+    grid.innerHTML = html;
+  } else {
+    grid.classList.add("hidden");
+    empty.classList.remove("hidden");
+  }
+}
+
+// --- エフェクト ＆ アクション ---
 function triggerConfetti() {
   if (!window.confetti) return;
   const end = Date.now() + 1000;
